@@ -24,16 +24,16 @@
  *        GMAIL_APP_PASSWORD=xxxx xxxx xxxx xxxx
  */
 
-import { readFileSync, writeFileSync, readdirSync } from "fs";
-import { basename, join, resolve, dirname } from "path";
-import { homedir } from "os";
-import { execSync, exec } from "child_process";
-import { parseArgs } from "util";
-import { fileURLToPath } from "url";
+import { readFileSync, writeFileSync, readdirSync } from 'fs';
+import { basename, join, resolve, dirname } from 'path';
+import { homedir } from 'os';
+import { execSync, exec } from 'child_process';
+import { parseArgs } from 'util';
+import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const projectRoot = resolve(__dirname, "..");
+const projectRoot = resolve(__dirname, '..');
 
 // ---------------------------------------------------------------------------
 // CLI args
@@ -41,10 +41,10 @@ const projectRoot = resolve(__dirname, "..");
 const { values, positionals } = parseArgs({
   allowPositionals: true,
   options: {
-    email:  { type: "string", short: "e" },
-    title:  { type: "string", short: "t" },
-    author: { type: "string", short: "a" },
-    help:   { type: "boolean", short: "h" },
+    email: { type: 'string', short: 'e' },
+    title: { type: 'string', short: 't' },
+    author: { type: 'string', short: 'a' },
+    help: { type: 'boolean', short: 'h' },
   },
 });
 
@@ -76,21 +76,21 @@ if (positionals.length > 0) {
   mdFiles = positionals.map((p) => resolve(p));
 } else {
   // All .md files in project root, excluding config files
-  const exclude = new Set(["CLAUDE.md", "AGENTS.md", "README.md"]);
+  const exclude = new Set(['CLAUDE.md', 'AGENTS.md', 'README.md']);
   mdFiles = readdirSync(projectRoot)
-    .filter((f) => f.endsWith(".md") && !exclude.has(f))
+    .filter((f) => f.endsWith('.md') && !exclude.has(f))
     .sort()
     .map((f) => join(projectRoot, f));
 }
 
 if (mdFiles.length === 0) {
-  console.error("No markdown files found.");
+  console.error('No markdown files found.');
   process.exit(1);
 }
 
-const title  = values.title  || basename(projectRoot);
-const author = values.author || "Unknown";
-const email  = values.email;
+const title = values.title || basename(projectRoot);
+const author = values.author || 'Unknown';
+const email = values.email;
 
 console.log(`Compiling ${mdFiles.length} markdown file(s) into EPUB...`);
 mdFiles.forEach((f) => console.log(`  - ${basename(f)}`));
@@ -100,11 +100,11 @@ mdFiles.forEach((f) => console.log(`  - ${basename(f)}`));
 // ---------------------------------------------------------------------------
 let EPub;
 try {
-  EPub = (await import("epub-gen-memory")).EPub;
+  EPub = (await import('epub-gen-memory')).EPub;
 } catch {
-  console.log("Installing epub-gen-memory...");
-  execSync("npm install --no-save epub-gen-memory", { stdio: "inherit" });
-  EPub = (await import("epub-gen-memory")).EPub;
+  console.log('Installing epub-gen-memory...');
+  execSync('npm install --no-save epub-gen-memory', { stdio: 'inherit' });
+  EPub = (await import('epub-gen-memory')).EPub;
 }
 
 // ---------------------------------------------------------------------------
@@ -113,8 +113,8 @@ try {
 const chapters = [];
 
 for (const filePath of mdFiles) {
-  const markdown = readFileSync(filePath, "utf-8");
-  const fileTitle = basename(filePath, ".md").replace(/[_-]/g, " ");
+  const markdown = readFileSync(filePath, 'utf-8');
+  const fileTitle = basename(filePath, '.md').replace(/[_-]/g, ' ');
 
   // Split on "# " headings
   const chapterRegex = /^# (.+)$/gm;
@@ -147,27 +147,24 @@ for (const filePath of mdFiles) {
 // Step 3 — Build TOC chapter
 // ---------------------------------------------------------------------------
 const tocHtml = [
-  "<h1>Table of Contents</h1>",
-  "<nav>",
-  "<ol>",
+  '<h1>Table of Contents</h1>',
+  '<nav>',
+  '<ol>',
   ...chapters.map((ch, i) => `  <li>${esc(ch.title)}</li>`),
-  "</ol>",
-  "</nav>",
-].join("\n");
+  '</ol>',
+  '</nav>',
+].join('\n');
 
-chapters.unshift({ title: "Table of Contents", content: tocHtml });
+chapters.unshift({ title: 'Table of Contents', content: tocHtml });
 
 // ---------------------------------------------------------------------------
 // Step 4 — Generate EPUB
 // ---------------------------------------------------------------------------
-const epub = new EPub(
-  { title, author, tocTitle: "Table of Contents" },
-  chapters,
-);
+const epub = new EPub({ title, author, tocTitle: 'Table of Contents' }, chapters);
 const epubBuffer = await epub.genEpub();
 
-const outName = title.replace(/[<>:"/\\|?*]/g, "_") + ".epub";
-const downloadsDir = join(homedir(), "Downloads");
+const outName = title.replace(/[<>:"/\\|?*]/g, '_') + '.epub';
+const downloadsDir = join(homedir(), 'Downloads');
 const outPath = join(downloadsDir, outName);
 
 writeFileSync(outPath, epubBuffer);
@@ -196,7 +193,10 @@ if (email) {
 function markdownToHtml(md) {
   let html = md
     // code blocks
-    .replace(/```(\w*)\n([\s\S]*?)```/g, (_m, _lang, code) => `<pre><code>${esc(code.trim())}</code></pre>`)
+    .replace(
+      /```(\w*)\n([\s\S]*?)```/g,
+      (_m, _lang, code) => `<pre><code>${esc(code.trim())}</code></pre>`,
+    )
     // inline code
     .replace(/`([^`]+)`/g, (_m, code) => `<code>${esc(code)}</code>`)
     // headings (## through ######)
@@ -205,52 +205,52 @@ function markdownToHtml(md) {
       return `<h${level}>${text}</h${level}>`;
     })
     // bold + italic
-    .replace(/\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>")
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*(.+?)\*/g, "<em>$1</em>")
+    .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
     // links
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
     // images
     .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" />')
     // horizontal rules
-    .replace(/^---+$/gm, "<hr />")
+    .replace(/^---+$/gm, '<hr />')
     // unordered list items
-    .replace(/^[-*] (.+)$/gm, "<li>$1</li>");
+    .replace(/^[-*] (.+)$/gm, '<li>$1</li>');
 
   // Wrap consecutive <li> in <ul>
-  html = html.replace(/((?:<li>.*<\/li>\n?)+)/g, "<ul>$1</ul>");
+  html = html.replace(/((?:<li>.*<\/li>\n?)+)/g, '<ul>$1</ul>');
 
   // Paragraphs: wrap remaining non-tag lines
   html = html
-    .split("\n\n")
+    .split('\n\n')
     .map((block) => {
       block = block.trim();
-      if (!block) return "";
-      if (block.startsWith("<")) return block;
-      return `<p>${block.replace(/\n/g, "<br />")}</p>`;
+      if (!block) return '';
+      if (block.startsWith('<')) return block;
+      return `<p>${block.replace(/\n/g, '<br />')}</p>`;
     })
-    .join("\n");
+    .join('\n');
 
   return html;
 }
 
 function esc(s) {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 /** Send email via nodemailer + Gmail SMTP */
 async function sendWithNodemailer(filePath, fileName, to, user, pass) {
   let nodemailer;
   try {
-    nodemailer = await import("nodemailer");
+    nodemailer = await import('nodemailer');
   } catch {
-    console.log("Installing nodemailer...");
-    execSync("npm install --no-save nodemailer", { stdio: "inherit" });
-    nodemailer = await import("nodemailer");
+    console.log('Installing nodemailer...');
+    execSync('npm install --no-save nodemailer', { stdio: 'inherit' });
+    nodemailer = await import('nodemailer');
   }
 
   const transporter = nodemailer.default.createTransport({
-    service: "gmail",
+    service: 'gmail',
     auth: { user, pass },
   });
 
@@ -264,14 +264,14 @@ async function sendWithNodemailer(filePath, fileName, to, user, pass) {
     attachments: [{ filename: fileName, path: filePath }],
   });
 
-  console.log("Email sent successfully.");
+  console.log('Email sent successfully.');
 }
 
 /** Fallback: open default mail client with the file (Windows) */
 async function openMailClient(filePath, to) {
   const platform = process.platform;
 
-  if (platform === "win32") {
+  if (platform === 'win32') {
     const ps = `
       try {
         $outlook = New-Object -ComObject Outlook.Application
@@ -279,7 +279,7 @@ async function openMailClient(filePath, to) {
         $mail.To = '${to}'
         $mail.Subject = 'EPUB: ${title.replace(/'/g, "''")}'
         $mail.Body = 'Your EPUB is attached.'
-        $mail.Attachments.Add('${filePath.replace(/\//g, "\\").replace(/'/g, "''")}')
+        $mail.Attachments.Add('${filePath.replace(/\//g, '\\').replace(/'/g, "''")}')
         $mail.Display()
         Write-Output 'OUTLOOK_OK'
       } catch {
@@ -289,30 +289,36 @@ async function openMailClient(filePath, to) {
 
     try {
       const result = execSync(`powershell -Command "${ps.replace(/"/g, '\\"')}"`, {
-        encoding: "utf-8",
+        encoding: 'utf-8',
       }).trim();
 
-      if (result.includes("OUTLOOK_OK")) {
-        console.log("Opened Outlook compose window with attachment.");
+      if (result.includes('OUTLOOK_OK')) {
+        console.log('Opened Outlook compose window with attachment.');
         return;
       }
-    } catch { /* fall through */ }
+    } catch {
+      /* fall through */
+    }
 
-    console.log("Outlook not available. Opening Gmail compose in browser...");
+    console.log('Outlook not available. Opening Gmail compose in browser...');
     const subject = encodeURIComponent(`EPUB: ${title}`);
-    const body = encodeURIComponent(`Your EPUB "${title}" is attached.\n\nFile location: ${filePath}`);
+    const body = encodeURIComponent(
+      `Your EPUB "${title}" is attached.\n\nFile location: ${filePath}`,
+    );
     const gmailUrl = `https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(to)}&su=${subject}&body=${body}`;
 
     exec(`start "" "${gmailUrl}"`);
-    exec(`explorer /select,"${filePath.replace(/\//g, "\\")}"`);
-    console.log(`Gmail compose opened. File explorer opened with "${outName}" selected — drag it into the email.`);
-  } else if (platform === "darwin") {
+    exec(`explorer /select,"${filePath.replace(/\//g, '\\')}"`);
+    console.log(
+      `Gmail compose opened. File explorer opened with "${outName}" selected — drag it into the email.`,
+    );
+  } else if (platform === 'darwin') {
     const subject = encodeURIComponent(`EPUB: ${title}`);
     const body = encodeURIComponent(`Your EPUB "${title}" is attached.`);
     const gmailUrl = `https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(to)}&su=${subject}&body=${body}`;
     exec(`open "${gmailUrl}"`);
     exec(`open -R "${filePath}"`);
-    console.log("Gmail compose opened. Finder revealed the file — drag it into the email.");
+    console.log('Gmail compose opened. Finder revealed the file — drag it into the email.');
   } else {
     const subject = encodeURIComponent(`EPUB: ${title}`);
     const gmailUrl = `https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(to)}&su=${subject}`;
