@@ -26,10 +26,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
-
-# mds
-/*.md
-!/README.md
+plans/
 
 # claude
 /.claude/

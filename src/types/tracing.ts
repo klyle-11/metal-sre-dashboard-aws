@@ -21,7 +21,7 @@ export interface Trace {
     rootSpan: Span;
     spans: Span[];
     duration: number;
-    service: string[];
+    services: string[];
     status: TraceStatus;
     timestamp: string;
     correlationId: string;
@@ -37,7 +37,7 @@ export interface ServiceNode {
     name: string;
     type: ServiceNodeType;
     requestRate: number;
-    errorRte: number;
+    errorRate: number;
     avgLatency: number;
     connections: ServiceConnection[];
 

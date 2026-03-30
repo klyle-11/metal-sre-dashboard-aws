@@ -57,7 +57,7 @@ export function useTraces(refreshInterval = 30_000): UseTracesReturn {
         traces: data?.traces ?? [],
         serviceMap: data?.serviceMap ?? [],
         isLoading,
-        isSimulated: data?.simulated ?? false,
+        isSimData: data?.sim ?? false,
         error,
     };
 }
