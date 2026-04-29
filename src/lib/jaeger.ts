@@ -43,7 +43,15 @@ interface JaegerApiResponse {
     errors: Array<{ code: number; msg: string }> | null;
 }
 
-function flattenTags(): Record<string, string> {}
+function flattenTags(tags: JaegerTag[]): Record<string, string> {
+    const result: Record<string, string> = {};
+
+    for (const tag of tags) {
+        result[tag.key] = String(tag.value);
+    }
+
+    return result;
+}
 
 function resolveParentSpanId(): stirng | null {}
 
