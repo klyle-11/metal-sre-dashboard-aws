@@ -13,7 +13,7 @@ export default function TracingPage() {
     const selectedTrace = traces.find((t) => t.traceId === selectedTraceId) ?? null;
 
     return (
-        <div className="flex flex-col gap-4 p-6 h-full">
+        <div className="page-container">
             <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold text-zinc-100">Dist. tracing</h2>
             </div>

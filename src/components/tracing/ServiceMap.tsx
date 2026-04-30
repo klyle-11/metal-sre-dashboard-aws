@@ -23,7 +23,7 @@ const ORBIT_RADIUS_Y = 140;
 
 function errorColor(errorRate: number): string {
     if (errorRate > 10) return '#ef4444';
-    if (errorRate > 10) return '#f59e0b';
+    if (errorRate > 2) return '#f59e0b';
     return '#22c55e';
 }
 
